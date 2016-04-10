@@ -16,16 +16,17 @@ import matplotlib.pyplot as plt
 from os import path
 
 NS_parameters.update(
-	nu = 1,
-	max_iter = 10,
+	nu = .1,
+	omega = 0.95,
+	max_iter = 250,
 	folder = "eccentric"
 	)
 
-plot(mesh, interactive=True)
+#plot(mesh, interactive=True)
 #Setting boundary values
 boundaries = FacetFunction("size_t", mesh)
 
-top = AutoSubDomain(lambda x: near(x[2], 2))
+top = AutoSubDomain(lambda x: near(x[2], 6))
 bottom = AutoSubDomain(lambda x: near(x[2], 0))
 nos = DomainBoundary() #AutoSubDomain(lambda x: not near(x[2], 2) and not near(x[2], 0))
 
@@ -33,7 +34,7 @@ boundaries.set_all(0)
 nos.mark(boundaries,1)
 top.mark(boundaries, 2)
 bottom.mark(boundaries, 3)
-#plot(boundaries); interactive()
+plot(boundaries); interactive()
 
 def create_bcs(VQ, **NS_namespace):
 	u_in = Expression(("0", "0",'- dpdx/(4*mu) * \
@@ -47,14 +48,13 @@ def create_bcs(VQ, **NS_namespace):
 	#INFLOW PROPERTIES
 	#inflow = DirichletBC(VQ.sub(0), ((0, 0, 1)), boundaries, 3)
 	inflow = DirichletBC(VQ.sub(0), u_in, boundaries, 3)
-	p_in = DirichletBC(VQ.sub(1), 15, boundaries, 3)
+	p_in = DirichletBC(VQ.sub(1), 6, boundaries, 3)
 
 	#OUTFLOW PROPERTIES
 	p_out = DirichletBC(VQ.sub(1), 0, boundaries, 2)
 
 	outflow = DirichletBC(VQ.sub(0), u_in, boundaries, 2)
-	return dict(up = [inflow, p_out, noslip])
-	#return dict(up = [noslip, p_in, p_out])
+	return dict(up = [p_in, p_out, noslip])
 
 #def pre_solve_hook(u_, **NS_namespace):
 #	print u_[2](np.array([0,0,0]))
@@ -75,9 +75,9 @@ def theend_hook(VQ, u_, mesh, **NS_namespace):
 	coor[:,0] = np.linspace(-1, 1, 200) ;coor[:,1] = 0; coor[:,2] = 1
 
 	coor1 = np.zeros((200, 3))
-	coor1[:,0] = np.linspace(-1, 1, 200) ;coor[:,1] = 0
+	coor1[:,0] = np.linspace(-1, 1, 200) #;coor[:,1] = 0
 
-
+	print mesh.num_cells()
 	#Velocity Coordinates
 	u = []; u_a = []
 	for c in coor:

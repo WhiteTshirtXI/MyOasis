@@ -1,7 +1,7 @@
 // Gmsh project created on Thu Apr  7 13:33:02 2016
-center = 0.6;
-sides = 0.6;
-h = 10;
+center = 0.35;
+sides = 0.35;
+h = 6;
 Point(1) = {0, 0, 0, center};
 Point(2) = {1, 0, 0, sides};
 Point(3) = {-1, 0, 0, sides};
